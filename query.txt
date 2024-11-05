@@ -1,0 +1,107 @@
+-- Step 1: Create the database
+CREATE DATABASE MedicalRecordsDB;
+
+-- Step 2: Select the database
+USE MedicalRecordsDB;
+
+-- Step 3: Create tables and insert data
+
+-- Create Patients Table
+CREATE TABLE Patients (
+    PatientID INT AUTO_INCREMENT PRIMARY KEY,
+    FirstName VARCHAR(50) NOT NULL,
+    LastName VARCHAR(50) NOT NULL,
+    DOB DATE NOT NULL,
+    Gender ENUM('M', 'F', 'Other') NOT NULL,
+    Phone VARCHAR(15) NOT NULL,
+    Email VARCHAR(100) NOT NULL,
+    Address VARCHAR(255) NOT NULL,
+    EmergencyContact VARCHAR(100),
+    InsuranceProvider VARCHAR(100),
+    PolicyNumber VARCHAR(50),
+    CoverageAmount DECIMAL(10, 2),
+    InsuranceExpiry DATE
+);
+
+-- Create Doctors Table
+CREATE TABLE Doctors (
+    DoctorID INT AUTO_INCREMENT PRIMARY KEY,
+    FirstName VARCHAR(50) NOT NULL,
+    LastName VARCHAR(50) NOT NULL,
+    Specialization VARCHAR(100) NOT NULL,
+    Phone VARCHAR(15) NOT NULL,
+    Email VARCHAR(100) NOT NULL
+);
+
+-- Create Appointments Table
+CREATE TABLE Appointments (
+    AppointmentID INT AUTO_INCREMENT PRIMARY KEY,
+    PatientID INT NOT NULL,
+    DoctorID INT NOT NULL,
+    AppointmentDate DATETIME NOT NULL,
+    Reason VARCHAR(255),
+    Status ENUM('Scheduled', 'Completed', 'Canceled') NOT NULL DEFAULT 'Scheduled',
+    FOREIGN KEY (PatientID) REFERENCES Patients(PatientID),
+    FOREIGN KEY (DoctorID) REFERENCES Doctors(DoctorID)
+);
+
+-- Create Medical History and Prescriptions Table
+CREATE TABLE MedicalHistoryPrescriptions (
+    RecordID INT AUTO_INCREMENT PRIMARY KEY,
+    PatientID INT NOT NULL,
+    DoctorID INT NOT NULL,
+    Conditn VARCHAR(255) NOT NULL,
+    StartDate DATE NOT NULL,
+    EndDate DATE,
+    MedicationName VARCHAR(255),
+    Dosage VARCHAR(50),
+    Instructions TEXT,
+    LabTestName VARCHAR(255),
+    LabTestDate DATETIME,
+    LabTestResults TEXT,
+    Notes TEXT,
+    FOREIGN KEY (PatientID) REFERENCES Patients(PatientID),
+    FOREIGN KEY (DoctorID) REFERENCES Doctors(DoctorID)
+);
+
+-- Create Billing Table
+CREATE TABLE Billing (
+    BillingID INT AUTO_INCREMENT PRIMARY KEY,
+    PatientID INT NOT NULL,
+    AppointmentID INT NOT NULL,
+    Amount DECIMAL(10, 2) NOT NULL,
+    BillingDate DATETIME NOT NULL,
+    Status ENUM('Pending', 'Paid') NOT NULL DEFAULT 'Pending',
+    FOREIGN KEY (PatientID) REFERENCES Patients(PatientID),
+    FOREIGN KEY (AppointmentID) REFERENCES Appointments(AppointmentID)
+);
+
+-- Insert sample data into Patients Table
+INSERT INTO Patients (FirstName, LastName, DOB, Gender, Phone, Email, Address, EmergencyContact, InsuranceProvider, PolicyNumber, CoverageAmount, InsuranceExpiry)
+VALUES 
+('John', 'Doe', '1985-05-15', 'M', '1234567890', 'john.doe@example.com', '123 Main St, Springfield', 'Jane Doe: 9876543210', 'ABC Insurance', 'POL12345', 10000.00, '2025-12-31'),
+('Emily', 'Smith', '1990-07-22', 'F', '0987654321', 'emily.smith@example.com', '456 Elm St, Springfield', 'John Smith: 1231231234', 'XYZ Insurance', 'POL67890', 15000.00, '2024-08-31');
+
+-- Insert sample data into Doctors Table
+INSERT INTO Doctors (FirstName, LastName, Specialization, Phone, Email)
+VALUES 
+('Alice', 'Johnson', 'Cardiology', '1122334455', 'alice.johnson@hospital.com'),
+('Robert', 'Williams', 'Dermatology', '2233445566', 'robert.williams@hospital.com');
+
+-- Insert sample data into Appointments Table
+INSERT INTO Appointments (PatientID, DoctorID, AppointmentDate, Reason, Status)
+VALUES 
+(1, 1, '2024-10-10 10:00:00', 'Routine check-up', 'Scheduled'),
+(2, 2, '2024-09-15 09:30:00', 'Skin rash', 'Completed');
+
+-- Insert sample data into Medical History and Prescriptions Table
+INSERT INTO MedicalHistoryPrescriptions (PatientID, DoctorID, Conditn, StartDate, EndDate, MedicationName, Dosage, Instructions, LabTestName, LabTestDate, LabTestResults, Notes)
+VALUES 
+(1, 1, 'Hypertension', '2023-06-01', NULL, 'Amlodipine', '5mg', 'Take one tablet daily', 'Blood Pressure Test', '2024-06-10 11:00:00', 'Blood pressure normal', 'Patient advised to monitor BP'),
+(2, 2, 'Eczema', '2024-09-01', '2024-09-15', 'Hydrocortisone Cream', 'Apply twice daily', 'Apply after bath', 'Skin biopsy', '2024-09-05 10:30:00', 'Mild inflammation', 'Treatment successful');
+
+-- Insert sample data into Billing Table
+INSERT INTO Billing (PatientID, AppointmentID, Amount, BillingDate, Status)
+VALUES 
+(1, 1, 200.00, '2024-10-10 11:00:00', 'Pending'),
+(2, 2, 150.00, '2024-09-15 10:00:00', 'Paid');
